@@ -1,5 +1,5 @@
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 def decode_image(path_to_png):
     """
@@ -31,17 +31,55 @@ def decode_image(path_to_png):
 
 def encode_image(path_to_png):
     """
-    TODO: Add docstring and complete implementation.
+    Encodes image with written text
     """
-    pass
+    # Open the image
+    original_img = Image.open(path_to_png)
+
+    # Separate the color channels
+    red_channel = original_img.split()[0]
+    green_channel = original_img.split()[1]
+    blue_channel = original_img.split()[2]
+
+    x_size = original_img.size[0]
+    y_size = original_img.size[1]
+
+    image_text = write_text(original_img.size, "But that's none of my business...")
+    bw_encode = image_text.convert('1')
+
+    # New PIL image with the same size as encoded
+    encoded_img = Image.new('RGB', (x_size, y_size))
+    pixels = original_img.load()
+    for i in range(x_size):
+        for j in range(y_size):
+            red_channel_pix = bin(red_channel.getpixel((i,j)))
+            old_pix = red_channel.getpixel((i,j))
+            tencode_pix = bin(bw_encode.getpixel((i,j)))
+
+            if tencode_pix[-1] == '1':
+                red_channel_pix = red_channel_pix[:-1] + '1'
+            else:
+                red_channel_pix = red_channel_pix[:-1] + '0'
+            pixels[i, j] = (int(red_channel_pix, 2), green_channel.getpixel((i,j)), blue_channel.getpixel((i,j)))
+    encoded_img.save("decoded_img2.png")
 
 
-def write_text(text_to_write):
+def write_text(img_size, text_to_write):
     """
-    TODO: Add docstring and complete implementation.
+    Writes text to an image
     """
-    pass
+    # create an image
+    img_txt = Image.new('RGB', img_size, (255, 255, 255))
+
+    # get a drawing context
+    draw = ImageDraw.Draw(img_txt)
+
+    # write black text
+    draw.multiline_text((10,10), text_to_write, fill=(0,0,0))
+    return img_txt
 
 
-path_to_png = "encoded_sample.png"
-decode_image(path_to_png)
+
+
+path_to_png = "encoded_img2.png"
+encode_image(path_to_png)
