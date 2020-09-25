@@ -1,6 +1,6 @@
 
 from PIL import Image, ImageDraw, ImageChops
-# Shoutout to Anika 
+# Shoutout to Anika for the code help!!
 
 def decode_image(path_to_png):
     """
