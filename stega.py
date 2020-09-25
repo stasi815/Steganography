@@ -1,5 +1,6 @@
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageChops
+# Shoutout to Anika 
 
 def decode_image(path_to_png):
     """
@@ -26,14 +27,14 @@ def decode_image(path_to_png):
                 pixels[i,j] = (0,0,0)
 
     # DO NOT MODIFY. Save the decoded image to disk:
-    decoded_image.save("decoded_image.png")
+    decoded_image.save("decoded_text2.png")
 
 
-def encode_image(path_to_png):
+def encode_image(encode_text, path_to_png="encoded_img2.png"):
     """
     Encodes image with written text
     """
-    # Open the image
+    # get original image
     original_img = Image.open(path_to_png)
 
     # Separate the color channels
@@ -44,24 +45,24 @@ def encode_image(path_to_png):
     x_size = original_img.size[0]
     y_size = original_img.size[1]
 
-    image_text = write_text(original_img.size, "But that's none of my business...")
-    bw_encode = image_text.convert('1')
+    image_text = write_text(original_img.size, encode_text)
 
-    # New PIL image with the same size as encoded
+    # make blank image for text
     encoded_img = Image.new('RGB', (x_size, y_size))
     pixels = original_img.load()
-    for i in range(x_size):
-        for j in range(y_size):
-            red_channel_pix = bin(red_channel.getpixel((i,j)))
-            old_pix = red_channel.getpixel((i,j))
-            tencode_pix = bin(bw_encode.getpixel((i,j)))
 
-            if tencode_pix[-1] == '1':
-                red_channel_pix = red_channel_pix[:-1] + '1'
-            else:
-                red_channel_pix = red_channel_pix[:-1] + '0'
-            pixels[i, j] = (int(red_channel_pix, 2), green_channel.getpixel((i,j)), blue_channel.getpixel((i,j)))
-    encoded_img.save("decoded_img2.png")
+    for x in range(x_size):
+        for y in range(y_size):
+            red_channel_pix = red_channel.getpixel((x,y))
+            green_channel_pix = green_channel.getpixel((x,y))
+            blue_channel_pix = blue_channel.getpixel((x,y))
+            encoded_img.putpixel((x,y), (red_channel_pix, green_channel_pix, blue_channel_pix))
+            if red_channel_pix % 2 == 1:
+                red_channel_pix -= 1
+                encoded_img.putpixel((x,y), (red_channel_pix, green_channel_pix, blue_channel_pix))
+            new_img = ImageChops.add(encoded_img, image_text)
+
+    new_img.save("decoded_img2.png")
 
 
 def write_text(img_size, text_to_write):
@@ -69,7 +70,7 @@ def write_text(img_size, text_to_write):
     Writes text to an image
     """
     # create an image
-    img_txt = Image.new('RGB', img_size, (255, 255, 255))
+    img_txt = Image.new('RGB', img_size, (1,0,0))
 
     # get a drawing context
     draw = ImageDraw.Draw(img_txt)
@@ -80,6 +81,7 @@ def write_text(img_size, text_to_write):
 
 
 
-
-path_to_png = "encoded_img2.png"
-encode_image(path_to_png)
+encode_text = "But that's none of my business..."
+path_to_png = "decoded_img2.png"
+# encode_image(encode_text, path_to_png)
+decode_image(path_to_png)
